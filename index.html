@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Simple E-commerce Store</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --dark-color: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+        }
+        
+        .navbar {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8)), 
+                        url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            border-radius: 15px;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .product-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.3);
+        }
+        
+        .product-card img {
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .product-price {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .star-rating {
+            color: var(--warning-color);
+        }
+        
+        .badge-category {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .footer {
+            background-color: #2e2e2e;
+            color: #fff;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+        
+        .footer a {
+            color: #ddd;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            color: white;
+        }
+        
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            max-width: 500px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .checkout-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .checkout-step.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .order-summary {
+            background-color: #f8f9fc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .order-card {
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .admin-table th {
+            background-color: #f8f9fc;
+            font-weight: 600;
+        }
+        
+        .toast-container {
+            z-index: 9999;
+        }
+        
+        .toast {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem 1rem;
+                text-align: center;
+            }
+            
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showPage('home')">
+                <i class="fas fa-shopping-bag me-2"></i>ShopEasy
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showPage('home')">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('products')">
+                            <i class="fas fa-box-open me-1"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-list me-1"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="filterProducts('all')">All Categories</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterProducts('Electronics')">Electronics</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterProducts('Clothing')">Clothing</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterProducts('Books')">Books</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="filterProducts('Home & Kitchen')">Home & Kitchen</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('about')">
+                            <i class="fas fa-info-circle me-1"></i> About
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="#" onclick="showPage('cart')">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                            <span id="cartCount" class="badge bg-danger rounded-pill cart-badge">0</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fa-lg me-2"></i>
+                            <span id="userName">Account</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showPage('login')" id="loginMenuItem">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showPage('register')" id="registerMenuItem">
+                                <i class="fas fa-user-plus me-2"></i> Register
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item d-none" href="#" onclick="showPage('profile')" id="profileMenuItem">
+                                <i class="fas fa-user me-2"></i> My Profile
+                            </a></li>
+                            <li><a class="dropdown-item d-none" href="#" onclick="showPage('orders')" id="ordersMenuItem">
+                                <i class="fas fa-shopping-bag me-2"></i> My Orders
+                            </a></li>
+                            <li><a class="dropdown-item d-none" href="#" onclick="showPage('admin')" id="adminMenuItem">
+                                <i class="fas fa-cog me-2"></i> Admin Panel
+                            </a></li>
+                            <li><hr class="dropdown-divider d-none" id="profileDivider"></li>
+                            <li><a class="dropdown-item d-none" href="#" onclick="logout()" id="logoutMenuItem">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container my-4" id="mainContent">
+        <!-- Home Page (Default) -->
+        <div id="homePage">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h1 class="display-4 fw-bold mb-3">Welcome to ShopEasy</h1>
+                        <p class="lead mb-4">Discover amazing products at great prices. Shop with confidence and convenience from the comfort of your home.</p>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-light btn-lg" onclick="showPage('products')">
+                                <i class="fas fa-shopping-cart me-2"></i> Shop Now
+                            </button>
+                            <button class="btn btn-outline-light btn-lg" onclick="showPage('about')">
+                                <i class="fas fa-info-circle me-2"></i> Learn More
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <i class="fas fa-store fa-10x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Categories -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h2 class="mb-4">Featured Categories</h2>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="card product-card text-center h-100" onclick="filterProducts('Electronics')" style="cursor: pointer;">
+                        <div class="card-body d-flex flex-column justify-content-center py-5">
+                            <i class="fas fa-laptop fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Electronics</h5>
+                            <p class="card-text text-muted small">Latest gadgets & devices</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="card product-card text-center h-100" onclick="filterProducts('Clothing')" style="cursor: pointer;">
+                        <div class="card-body d-flex flex-column justify-content-center py-5">
+                            <i class="fas fa-tshirt fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Clothing</h5>
+                            <p class="card-text text-muted small">Fashion for everyone</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="card product-card text-center h-100" onclick="filterProducts('Books')" style="cursor: pointer;">
+                        <div class="card-body d-flex flex-column justify-content-center py-5">
+                            <i class="fas fa-book fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Books</h5>
+                            <p class="card-text text-muted small">Knowledge & entertainment</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="card product-card text-center h-100" onclick="filterProducts('Home & Kitchen')" style="cursor: pointer;">
+                        <div class="card-body d-flex flex-column justify-content-center py-5">
+                            <i class="fas fa-home fa-3x text-danger mb-3"></i>
+                            <h5 class="card-title">Home & Kitchen</h5>
+                            <p class="card-text text-muted small">Essentials for your home</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="row">
+                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Featured Products</h2>
+                    <a href="#" class="btn btn-outline-primary" onclick="showPage('products')">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div id="featuredProducts" class="row">
+                    <!-- Featured products will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Page -->
+        <div id="productsPage" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">All Products</h1>
+                <div class="d-flex gap-2">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search products..." onkeyup="searchProducts()">
+                    <select class="form-select" id="categoryFilter" onchange="filterProducts(this.value)" style="width: auto;">
+                        <option value="all">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Books">Books</option>
+                        <option value="Home & Kitchen">Home & Kitchen</option>
+                    </select>
+                    <select class="form-select" id="sortFilter" onchange="sortProducts(this.value)" style="width: auto;">
+                        <option value="newest">Newest First</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row" id="productsContainer">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Product Details Page -->
+        <div id="productDetailPage" class="d-none">
+            <!-- Product details will be loaded here -->
+        </div>
+
+        <!-- Cart Page -->
+        <div id="cartPage" class="d-none">
+            <h1 class="mb-4">Shopping Cart</h1>
+            <div class="row">
+                <div class="col-lg-8" id="cartItemsContainer">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <div class="col-lg-4">
+                    <div class="order-summary">
+                        <h4 class="mb-3">Order Summary</h4>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span id="cartSubtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (10%)</span>
+                            <span id="cartTax">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5>Total</h5>
+                            <h5 id="cartTotal">$0.00</h5>
+                        </div>
+                        
+                        <div class="alert alert-info small mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Free shipping</strong> on all orders. All taxes included.
+                        </div>
+                        
+                        <button class="btn btn-primary btn-lg w-100 mb-3" onclick="showPage('checkout')" id="checkoutBtn" disabled>
+                            <i class="fas fa-lock me-2"></i> Proceed to Checkout
+                        </button>
+                        
+                        <a href="#" class="btn btn-outline-primary w-100" onclick="showPage('products')">
+                            <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                        </a>
+                        
+                        <div class="mt-4">
+                            <p class="small text-muted">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Secure checkout. Your information is protected.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <div id="checkoutPage" class="d-none">
+            <h1 class="mb-4">Checkout</h1>
+            
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="text-center mx-4">
+                            <div class="checkout-step active">1</div>
+                            <div class="small mt-1">Cart</div>
+                        </div>
+                        <div class="text-center mx-4">
+                            <div class="checkout-step">2</div>
+                            <div class="small mt-1">Information</div>
+                        </div>
+                        <div class="text-center mx-4">
+                            <div class="checkout-step">3</div>
+                            <div class="small mt-1">Payment</div>
+                        </div>
+                        <div class="text-center mx-4">
+                            <div class="checkout-step">4</div>
+                            <div class="small mt-1">Confirm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Shipping Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="shippingForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="firstName" class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="lastName" class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Street Address *</label>
+                                    <input type="text" class="form-control" id="address" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="city" class="form-label">City *</label>
+                                        <input type="text" class="form-control" id="city" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="state" class="form-label">State *</label>
+                                        <input type="text" class="form-control" id="state" required>
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="zip" class="form-label">ZIP *</label>
+                                        <input type="text" class="form-control" id="zip" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phone" required>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Payment Method</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
+                                <label class="form-check-label" for="creditCard">
+                                    <i class="fas fa-credit-card me-2"></i> Credit/Debit Card
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="paypal">
+                                <label class="form-check-label" for="paypal">
+                                    <i class="fab fa-paypal me-2"></i> PayPal
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cod">
+                                <label class="form-check-label" for="cod">
+                                    <i class="fas fa-money-bill-wave me-2"></i> Cash on Delivery
+                                </label>
+                            </div>
+                            
+                            <div id="creditCardForm" class="mt-4">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label for="cardNumber" class="form-label">Card Number *</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expiryDate" class="form-label">Expiry Date *</label>
+                                        <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cvv" class="form-label">CVV *</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="cardName" class="form-label">Name on Card *</label>
+                                        <input type="text" class="form-control" id="cardName">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="order-summary">
+                        <h4 class="mb-3">Order Summary</h4>
+                        <div id="checkoutItems">
+                            <!-- Checkout items will be loaded here -->
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span id="checkoutSubtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (10%)</span>
+                            <span id="checkoutTax">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5>Total</h5>
+                            <h5 id="checkoutTotal">$0.00</h5>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck">
+                            <label class="form-check-label small" for="termsCheck">
+                                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <button class="btn btn-success btn-lg w-100" onclick="placeOrder()">
+                            <i class="fas fa-check-circle me-2"></i> Place Order
+                        </button>
+                        
+                        <a href="#" class="btn btn-outline-secondary w-100 mt-3" onclick="showPage('cart')">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="d-none">
+            <div class="login-container">
+                <h2 class="text-center mb-4">Welcome Back</h2>
+                <p class="text-center text-muted mb-4">Sign in to your account to continue shopping</p>
+                
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <div class="text-end mt-2">
+                            <a href="#" class="small" onclick="showPage('forgotPassword')">Forgot password?</a>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                    </button>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="#" class="text-decoration-none" onclick="showPage('register')">Sign up here</a>
+                        </p>
+                    </div>
+                </form>
+                
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="text-center mb-3">Demo Accounts</h6>
+                    <div class="small">
+                        <p class="mb-1">
+                            <strong>Admin:</strong> admin@example.com / password123
+                        </p>
+                        <p class="mb-0">
+                            <strong>User:</strong> user@example.com / password123
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="d-none">
+            <div class="login-container">
+                <h2 class="text-center mb-4">Create Account</h2>
+                <p class="text-center text-muted mb-4">Join ShopEasy today for a better shopping experience</p>
+                
+                <form id="registerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="regFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="regFirstName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="regLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="regLastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="regEmail" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="regPassword" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="regPassword" required>
+                        </div>
+                        <div class="form-text">Must be at least 6 characters</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="regConfirmPassword" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                        <i class="fas fa-user-plus me-2"></i> Create Account
+                    </button>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Already have an account? 
+                            <a href="#" class="text-decoration-none" onclick="showPage('login')">Sign in here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="d-none">
+            <h1 class="mb-4">My Profile</h1>
+            
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                    <i class="fas fa-user fa-3x text-white"></i>
+                                </div>
+                            </div>
+                            <h4 id="profileName">John Doe</h4>
+                            <p class="text-muted" id="profileEmail">john@example.com</p>
+                            <p class="small">
+                                <span class="badge bg-success" id="profileRole">Customer</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Account Details</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Member Since</span>
+                                    <span id="memberSince">2023</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Total Orders</span>
+                                    <span id="totalOrders">0</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Total Spent</span>
+                                    <span id="totalSpent">$0.00</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-8">
+                    <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit">Edit Profile</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address">Addresses</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security">Security</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="profileTabContent">
+                        <div class="tab-pane fade show active" id="edit" role="tabpanel">
+                            <form id="profileForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="profileFirstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="profileFirstName">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="profileLastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="profileLastName">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="profileEmailInput" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="profileEmailInput">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="profilePhone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="profilePhone">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            </form>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="address" role="tabpanel">
+                            <h5 class="mb-3">Saved Addresses</h5>
+                            <div id="savedAddresses">
+                                <!-- Addresses will be loaded here -->
+                            </div>
+                            <button class="btn btn-outline-primary mt-3" onclick="addNewAddress()">
+                                <i class="fas fa-plus me-2"></i> Add New Address
+                            </button>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <h5 class="mb-3">Change Password</h5>
+                            <form id="passwordForm">
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="currentPassword">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="newPassword">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirmNewPassword">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Change Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div id="ordersPage" class="d-none">
+            <h1 class="mb-4">My Orders</h1>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="text-center py-5" id="noOrdersMessage">
+                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                <h4>No orders yet</h4>
+                <p class="text-muted">You haven't placed any orders yet.</p>
+                <button class="btn btn-primary" onclick="showPage('products')">
+                    <i class="fas fa-shopping-cart me-2"></i> Start Shopping
+                </button>
+            </div>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="adminPage" class="d-none">
+            <h1 class="mb-4">Admin Panel</h1>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Products</h5>
+                            <h2 id="adminTotalProducts">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Orders</h5>
+                            <h2 id="adminTotalOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Users</h5>
+                            <h2 id="adminTotalUsers">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Revenue</h5>
+                            <h2 id="adminRevenue">$0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="nav nav-tabs" id="adminTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="products-tab" data-bs-toggle="tab" data-bs-target="#adminProducts">Products</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#adminOrders">Orders</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#adminUsers">Users</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="adminTabContent">
+                <div class="tab-pane fade show active" id="adminProducts" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Product Management</h5>
+                        <button class="btn btn-primary" onclick="showAddProductModal()">
+                            <i class="fas fa-plus me-2"></i> Add Product
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Rating</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminProductsTable">
+                                <!-- Admin products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="adminOrders" role="tabpanel">
+                    <h5 class="mb-3">Order Management</h5>
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOrdersTable">
+                                <!-- Admin orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="adminUsers" role="tabpanel">
+                    <h5 class="mb-3">User Management</h5>
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th>Orders</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersTable">
+                                <!-- Admin users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="aboutPage" class="d-none">
+            <h1 class="mb-4">About ShopEasy</h1>
+            
+            <div class="row mb-5">
+                <div class="col-lg-6">
+                    <h3 class="mb-3">Our Story</h3>
+                    <p>ShopEasy was founded in 2023 with a simple mission: to make online shopping easy, secure, and enjoyable for everyone. What started as a small project has grown into a full-featured e-commerce platform serving customers worldwide.</p>
+                    <p>We believe that shopping should be a hassle-free experience. That's why we've built ShopEasy with user-friendly features, secure payment processing, and excellent customer service.</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" 
+                         class="img-fluid rounded" alt="About Us">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Secure Shopping</h5>
+                            <p class="card-text">Your security is our priority. We use industry-standard encryption to protect your data.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="fas fa-shipping-fast fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Fast Delivery</h5>
+                            <p class="card-text">We partner with reliable shipping carriers to ensure your orders arrive on time.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="fas fa-headset fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">24/7 Support</h5>
+                            <p class="card-text">Our customer support team is always ready to help with any questions or issues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Confirmation Page -->
+        <div id="orderConfirmPage" class="d-none">
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                </div>
+                <h1 class="mb-3">Order Confirmed!</h1>
+                <p class="lead mb-4">Thank you for your order. Your order has been placed successfully.</p>
+                <div class="card mx-auto mb-4" style="max-width: 500px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Order Details</h5>
+                        <p class="card-text">
+                            <strong>Order ID:</strong> <span id="confirmedOrderId">#000001</span><br>
+                            <strong>Total Amount:</strong> <span id="confirmedOrderTotal">$0.00</span><br>
+                            <strong>Estimated Delivery:</strong> 5-7 business days
+                        </p>
+                    </div>
+                </div>
+                <p class="text-muted mb-4">A confirmation email has been sent to your registered email address.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-primary" onclick="showPage('orders')">
+                        <i class="fas fa-shopping-bag me-2"></i> View Orders
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="showPage('home')">
+                        <i class="fas fa-home me-2"></i> Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h4 class="mb-3"><i class="fas fa-shopping-bag me-2"></i> ShopEasy</h4>
+                    <p>Your one-stop destination for all your shopping needs. Quality products, secure payments, and fast delivery.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" onclick="showPage('home')">Home</a></li>
+                        <li><a href="#" onclick="showPage('products')">Products</a></li>
+                        <li><a href="#" onclick="showPage('about')">About Us</a></li>
+                        <li><a href="#" onclick="showPage('login')">My Account</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Customer Service</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Shipping Policy</a></li>
+                        <li><a href="#">Return Policy</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Contact Info</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> 123 Street, City, Country</li>
+                        <li><i class="fas fa-phone me-2"></i> +1 234 567 8900</li>
+                        <li><i class="fas fa-envelope me-2"></i> support@shopeasy.com</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: #555;">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023 ShopEasy. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Made with <i class="fas fa-heart text-danger"></i> for CodeAlpha Internship</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & JS Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ======================
+        // DATA STORAGE & INITIALIZATION
+        // ======================
+        
+        // Initialize sample data
+        const sampleProducts = [
+            {
+                id: 1,
+                name: "Wireless Bluetooth Headphones",
+                description: "Noise cancelling wireless headphones with premium sound quality. Perfect for music lovers and professionals.",
+                price: 129.99,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 50,
+                rating: 4.5,
+                reviews: 42,
+                featured: true
+            },
+            {
+                id: 2,
+                name: "Smart Watch Series 5",
+                description: "Track your fitness, receive notifications, and stay connected with this advanced smartwatch.",
+                price: 299.99,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 30,
+                rating: 4.7,
+                reviews: 89,
+                featured: true
+            },
+            {
+                id: 3,
+                name: "Casual T-Shirt (Pack of 3)",
+                description: "Comfortable cotton t-shirts perfect for everyday wear. Available in multiple colors.",
+                price: 39.99,
+                category: "Clothing",
+                image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 100,
+                rating: 4.3,
+                reviews: 156,
+                featured: true
+            },
+            {
+                id: 4,
+                name: "Programming Book: JavaScript Mastery",
+                description: "Learn JavaScript from beginner to advanced level with practical examples and projects.",
+                price: 34.99,
+                category: "Books",
+                image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 75,
+                rating: 4.8,
+                reviews: 203,
+                featured: false
+            },
+            {
+                id: 5,
+                name: "Kitchen Knife Set",
+                description: "Professional-grade knife set for your kitchen. Sharp, durable, and easy to clean.",
+                price: 89.99,
+                category: "Home & Kitchen",
+                image: "https://images.unsplash.com/photo-1594736797933-d4301dca2e24?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 40,
+                rating: 4.6,
+                reviews: 67,
+                featured: true
+            },
+            {
+                id: 6,
+                name: "Running Shoes",
+                description: "Lightweight running shoes with cushioning technology for maximum comfort during workouts.",
+                price: 79.99,
+                category: "Clothing",
+                image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 60,
+                rating: 4.4,
+                reviews: 98,
+                featured: false
+            },
+            {
+                id: 7,
+                name: "Wireless Mouse",
+                description: "Ergonomic wireless mouse with precise tracking and long battery life.",
+                price: 24.99,
+                category: "Electronics",
+                image: "https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 120,
+                rating: 4.2,
+                reviews: 45,
+                featured: false
+            },
+            {
+                id: 8,
+                name: "Coffee Maker",
+                description: "Automatic coffee maker with programmable settings and thermal carafe.",
+                price: 69.99,
+                category: "Home & Kitchen",
+                image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 35,
+                rating: 4.5,
+                reviews: 112,
+                featured: true
+            },
+            {
+                id: 9,
+                name: "Yoga Mat",
+                description: "Non-slip yoga mat with carrying strap. Perfect for yoga, pilates, and fitness exercises.",
+                price: 29.99,
+                category: "Sports",
+                image: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 80,
+                rating: 4.3,
+                reviews: 56,
+                featured: false
+            },
+            {
+                id: 10,
+                name: "Backpack",
+                description: "Water-resistant backpack with laptop compartment and multiple pockets.",
+                price: 49.99,
+                category: "Clothing",
+                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                stock: 90,
+                rating: 4.6,
+                reviews: 78,
+                featured: false
+            }
+        ];
+
+        const sampleUsers = [
+            {
+                id: 1,
+                firstName: "Admin",
+                lastName: "User",
+                email: "admin@example.com",
+                password: "password123",
+                role: "admin",
+                joined: "2023-01-15",
+                orders: 0,
+                totalSpent: 0
+            },
+            {
+                id: 2,
+                firstName: "John",
+                lastName: "Doe",
+                email: "user@example.com",
+                password: "password123",
+                role: "customer",
+                joined: "2023-03-20",
+                orders: 2,
+                totalSpent: 159.98
+            }
+        ];
+
+        const sampleOrders = [
+            {
+                id: 1001,
+                userId: 2,
+                date: "2023-10-15",
+                items: [
+                    { productId: 1, name: "Wireless Bluetooth Headphones", quantity: 1, price: 129.99 },
+                    { productId: 4, name: "Programming Book: JavaScript Mastery", quantity: 1, price: 34.99 }
+                ],
+                total: 164.98,
+                status: "Delivered",
+                shippingAddress: "123 Main St, New York, NY 10001"
+            },
+            {
+                id: 1002,
+                userId: 2,
+                date: "2023-11-05",
+                items: [
+                    { productId: 3, name: "Casual T-Shirt (Pack of 3)", quantity: 2, price: 39.99 }
+                ],
+                total: 79.98,
+                status: "Processing",
+                shippingAddress: "123 Main St, New York, NY 10001"
+            }
+        ];
+
+        // Initialize localStorage
+        function initializeStorage() {
+            if (!localStorage.getItem('products')) {
+                localStorage.setItem('products', JSON.stringify(sampleProducts));
+            }
+            
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify(sampleUsers));
+            }
+            
+            if (!localStorage.getItem('orders')) {
+                localStorage.setItem('orders', JSON.stringify(sampleOrders));
+            }
+            
+            if (!localStorage.getItem('cart')) {
+                localStorage.setItem('cart', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('currentUser')) {
+                localStorage.setItem('currentUser', JSON.stringify(null));
+            }
+        }
+
+        // ======================
+        // UTILITY FUNCTIONS
+        // ======================
+        
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const typeClass = {
+                'success': 'text-bg-success',
+                'error': 'text-bg-danger',
+                'warning': 'text-bg-warning',
+                'info': 'text-bg-info'
+            }[type] || 'text-bg-info';
+            
+            const icon = {
+                'success': 'fa-check-circle',
+                'error': 'fa-exclamation-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            }[type] || 'fa-info-circle';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center ${typeClass} border-0`;
+            toast.id = toastId;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas ${icon} me-2"></i> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
+
+        function formatCurrency(amount) {
+            return '$' + parseFloat(amount).toFixed(2);
+        }
+
+        function generateStarRating(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '<i class="fas fa-star star-rating"></i>';
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt star-rating"></i>';
+                } else {
+                    stars += '<i class="far fa-star star-rating"></i>';
+                }
+            }
+            
+            return stars;
+        }
+
+        // ======================
+        // PAGE NAVIGATION
+        // ======================
+        
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('[id$="Page"]');
+            pages.forEach(page => {
+                page.classList.add('d-none');
+            });
+            
+            // Show requested page
+            const pageToShow = document.getElementById(pageId + 'Page');
+            if (pageToShow) {
+                pageToShow.classList.remove('d-none');
+                
+                // Update active nav link
+                document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Load page-specific content
+                switch(pageId) {
+                    case 'home':
+                        loadHomePage();
+                        document.querySelector('.navbar-nav .nav-link[onclick="showPage(\'home\')"]').classList.add('active');
+                        break;
+                    case 'products':
+                        loadProductsPage();
+                        document.querySelector('.navbar-nav .nav-link[onclick="showPage(\'products\')"]').classList.add('active');
+                        break;
+                    case 'cart':
+                        loadCartPage();
+                        break;
+                    case 'checkout':
+                        loadCheckoutPage();
+                        break;
+                    case 'login':
+                        document.querySelector('.navbar-nav .nav-link[onclick="showPage(\'login\')"]').classList.add('active');
+                        break;
+                    case 'register':
+                        break;
+                    case 'profile':
+                        loadProfilePage();
+                        break;
+                    case 'orders':
+                        loadOrdersPage();
+                        break;
+                    case 'admin':
+                        loadAdminPage();
+                        break;
+                    case 'about':
+                        document.querySelector('.navbar-nav .nav-link[onclick="showPage(\'about\')"]').classList.add('active');
+                        break;
+                }
+            }
+        }
+
+        // ======================
+        // PRODUCT FUNCTIONS
+        // ======================
+        
+        function getProducts() {
+            return JSON.parse(localStorage.getItem('products')) || [];
+        }
+
+        function loadHomePage() {
+            loadFeaturedProducts();
+            updateCartCount();
+        }
+
+        function loadFeaturedProducts() {
+            const products = getProducts();
+            const featuredProducts = products.filter(p => p.featured);
+            const container = document.getElementById('featuredProducts');
+            
+            container.innerHTML = '';
+            
+            featuredProducts.forEach(product => {
+                const productCard = `
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card product-card h-100">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge badge-category mb-2">${product.category}</span>
+                                <h5 class="card-title">${product.name}</h5>
+                                <div class="mb-2">
+                                    ${generateStarRating(product.rating)}
+                                    <small class="text-muted ms-1">(${product.reviews})</small>
+                                </div>
+                                <p class="card-text text-truncate">${product.description}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="product-price mb-0">${formatCurrency(product.price)}</h4>
+                                        <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                                            ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                        </span>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" onclick="viewProductDetail(${product.id})">
+                                            <i class="fas fa-eye me-1"></i> View Details
+                                        </button>
+                                        <button class="btn btn-primary" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                                            <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        }
+
+        function loadProductsPage() {
+            const products = getProducts();
+            const container = document.getElementById('productsContainer');
+            
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                const productCard = `
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card product-card h-100">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge badge-category mb-2">${product.category}</span>
+                                <h5 class="card-title">${product.name}</h5>
+                                <div class="mb-2">
+                                    ${generateStarRating(product.rating)}
+                                    <small class="text-muted ms-1">(${product.reviews})</small>
+                                </div>
+                                <p class="card-text text-truncate">${product.description}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="product-price mb-0">${formatCurrency(product.price)}</h4>
+                                        <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                                            ${product.stock > 0 ? `${product.stock} left` : 'Out of Stock'}
+                                        </span>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" onclick="viewProductDetail(${product.id})">
+                                            <i class="fas fa-eye me-1"></i> View Details
+                                        </button>
+                                        <button class="btn btn-primary" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                                            <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        }
+
+        function filterProducts(category) {
+            if (category === 'all') {
+                loadProductsPage();
+            } else {
+                const products = getProducts();
+                const filteredProducts = products.filter(p => p.category === category);
+                const container = document.getElementById('productsContainer');
+                
+                container.innerHTML = '';
+                
+                if (filteredProducts.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h4>No products found in this category</h4>
+                            <p class="text-muted">Try another category or check back later.</p>
+                        </div>
+                    `;
+                } else {
+                    filteredProducts.forEach(product => {
+                        const productCard = `
+                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                <div class="card product-card h-100">
+                                    <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body d-flex flex-column">
+                                        <span class="badge badge-category mb-2">${product.category}</span>
+                                        <h5 class="card-title">${product.name}</h5>
+                                        <div class="mb-2">
+                                            ${generateStarRating(product.rating)}
+                                            <small class="text-muted ms-1">(${product.reviews})</small>
+                                        </div>
+                                        <p class="card-text text-truncate">${product.description}</p>
+                                        <div class="mt-auto">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h4 class="product-price mb-0">${formatCurrency(product.price)}</h4>
+                                                <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                                                    ${product.stock > 0 ? `${product.stock} left` : 'Out of Stock'}
+                                                </span>
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-outline-primary" onclick="viewProductDetail(${product.id})">
+                                                    <i class="fas fa-eye me-1"></i> View Details
+                                                </button>
+                                                <button class="btn btn-primary" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                                                    <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += productCard;
+                    });
+                }
+            }
+            
+            // Update category filter dropdown
+            document.getElementById('categoryFilter').value = category;
+            showPage('products');
+        }
+
+        function searchProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const products = getProducts();
+            const filteredProducts = products.filter(p => 
+                p.name.toLowerCase().includes(searchTerm) || 
+                p.description.toLowerCase().includes(searchTerm) ||
+                p.category.toLowerCase().includes(searchTerm)
+            );
+            
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>No products found</h4>
+                        <p class="text-muted">Try different search terms or browse categories.</p>
+                    </div>
+                `;
+            } else {
+                filteredProducts.forEach(product => {
+                    const productCard = `
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                            <div class="card product-card h-100">
+                                <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge badge-category mb-2">${product.category}</span>
+                                    <h5 class="card-title">${product.name}</h5>
+                                    <div class="mb-2">
+                                        ${generateStarRating(product.rating)}
+                                        <small class="text-muted ms-1">(${product.reviews})</small>
+                                    </div>
+                                    <p class="card-text text-truncate">${product.description}</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h4 class="product-price mb-0">${formatCurrency(product.price)}</h4>
+                                            <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                                                ${product.stock > 0 ? `${product.stock} left` : 'Out of Stock'}
+                                            </span>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-outline-primary" onclick="viewProductDetail(${product.id})">
+                                                <i class="fas fa-eye me-1"></i> View Details
+                                            </button>
+                                            <button class="btn btn-primary" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                                                <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += productCard;
+                });
+            }
+        }
+
+        function sortProducts(sortBy) {
+            const products = getProducts();
+            let sortedProducts = [...products];
+            
+            switch(sortBy) {
+                case 'price-low':
+                    sortedProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    sortedProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'rating':
+                    sortedProducts.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'newest':
+                default:
+                    sortedProducts.sort((a, b) => b.id - a.id);
+                    break;
+            }
+            
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            
+            sortedProducts.forEach(product => {
+                const productCard = `
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card product-card h-100">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge badge-category mb-2">${product.category}</span>
+                                <h5 class="card-title">${product.name}</h5>
+                                <div class="mb-2">
+                                    ${generateStarRating(product.rating)}
+                                    <small class="text-muted ms-1">(${product.reviews})</small>
+                                </div>
+                                <p class="card-text text-truncate">${product.description}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h4 class="product-price mb-0">${formatCurrency(product.price)}</h4>
+                                        <span class="badge ${product.stock > 0 ? 'bg-success' : 'bg-danger'}">
+                                            ${product.stock > 0 ? `${product.stock} left` : 'Out of Stock'}
+                                        </span>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" onclick="viewProductDetail(${product.id})">
+                                            <i class="fas fa-eye me-1"></i> View Details
+                                        </button>
+                                        <button class="btn btn-primary" onclick="addToCart(${product.id})" ${product.stock === 0 ? 'disabled' : ''}>
+                                            <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        }
+
+        function viewProductDetail(productId) {
+            const products = getProducts();
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) {
+                showToast('Product not found', 'error');
+                return;
+            }
+            
+            const page = document.getElementById('productDetailPage');
+            page.classList.remove('d-none');
+            
+            // Hide all other pages
+            document.querySelectorAll('[id$="Page"]').forEach(p => {
+                if (p.id !== 'productDetailPage') {
+                    p.classList.add('d-none');
+                }
+            });
+            
+            page.innerHTML = `
+                <button class="btn btn-link mb-3" onclick="showPage('products')">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Products
+                </button>
+                
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}" style="max-height: 500px; object-fit: contain;">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <span class="badge badge-category mb-2">${product.category}</span>
+                                <h1 class="h2 mb-3">${product.name}</h1>
+                                
+                                <div class="d-flex align-items-center mb-3">
+                                    ${generateStarRating(product.rating)}
+                                    <span class="ms-2">(${product.reviews} reviews)</span>
+                                </div>
+                                
+                                <h2 class="text-primary mb-4">${formatCurrency(product.price)}</h2>
+                                
+                                <p class="mb-4">${product.description}</p>
+                                
+                                <div class="mb-4">
+                                    <strong>Availability:</strong> 
+                                    ${product.stock > 0 ? 
+                                        `<span class="text-success">${product.stock} in stock</span>` : 
+                                        `<span class="text-danger">Out of stock</span>`}
+                                </div>
+                                
+                                ${product.stock > 0 ? `
+                                    <div class="mb-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <label class="me-3">Quantity:</label>
+                                            <div class="d-flex align-items-center">
+                                                <button class="btn btn-outline-secondary quantity-btn" onclick="updateProductQuantity(-1)">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="number" class="form-control mx-2 text-center" id="productQuantity" value="1" min="1" max="${product.stock}" style="width: 80px;">
+                                                <button class="btn btn-outline-secondary quantity-btn" onclick="updateProductQuantity(1)">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-primary btn-lg" onclick="addToCart(${product.id}, parseInt(document.getElementById('productQuantity').value))">
+                                                <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                                            </button>
+                                            <button class="btn btn-success btn-lg" onclick="buyNow(${product.id})">
+                                                <i class="fas fa-bolt me-2"></i> Buy Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Product Details</h3>
+                            </div>
+                            <div class="card-body">
+                                <h5>Specifications</h5>
+                                <table class="table">
+                                    <tr>
+                                        <th width="30%">Category</th>
+                                        <td>${product.category}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Rating</th>
+                                        <td>${product.rating} / 5.0 (${product.reviews} reviews)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Stock</th>
+                                        <td>${product.stock} units available</td>
+                                    </tr>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <td>PROD-${product.id.toString().padStart(4, '0')}</td>
+                                    </tr>
+                                </table>
+                                
+                                <h5 class="mt-4">Customer Reviews</h5>
+                                <div class="border-top pt-3">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="me-3">
+                                            <h2 class="mb-0">${product.rating}</h2>
+                                            <div>${generateStarRating(product.rating)}</div>
+                                        </div>
+                                        <div>
+                                            <div class="small">Based on ${product.reviews} reviews</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6>Write a Review</h6>
+                                        <form id="reviewForm">
+                                            <div class="mb-3">
+                                                <label class="form-label">Rating</label>
+                                                <div class="rating-input">
+                                                    ${[1,2,3,4,5].map(i => `
+                                                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="setReviewRating(${i})">
+                                                            <i class="fas fa-star"></i> ${i}
+                                                        </button>
+                                                    `).join(' ')}
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Your Review</label>
+                                                <textarea class="form-control" id="reviewText" rows="3" placeholder="Share your thoughts about this product..."></textarea>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="submitReview(${product.id})">Submit Review</button>
+                                        </form>
+                                    </div>
+                                    
+                                    <div class="reviews">
+                                        <h6>Recent Reviews</h6>
+                                        ${product.reviews > 0 ? `
+                                            <div class="border-bottom pb-3 mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="d-flex align-items-center">
+                                                        ${generateStarRating(5)}
+                                                        <span class="ms-2"><strong>Excellent Product!</strong></span>
+                                                    </div>
+                                                    <small class="text-muted">2 days ago</small>
+                                                </div>
+                                                <p class="mt-2 mb-0">This is one of the best products I've purchased online. Highly recommended!</p>
+                                            </div>
+                                            <div class="border-bottom pb-3 mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="d-flex align-items-center">
+                                                        ${generateStarRating(4)}
+                                                        <span class="ms-2"><strong>Good Value</strong></span>
+                                                    </div>
+                                                    <small class="text-muted">1 week ago</small>
+                                                </div>
+                                                <p class="mt-2 mb-0">Works as described. Good quality for the price.</p>
+                                            </div>
+                                        ` : `
+                                            <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateProductQuantity(change) {
+            const input = document.getElementById('productQuantity');
+            let value = parseInt(input.value) || 1;
+            const max = parseInt(input.max) || 1;
+            
+            value += change;
+            if (value < 1) value = 1;
+            if (value > max) value = max;
+            
+            input.value = value;
+        }
+
+        function setReviewRating(rating) {
+            // This would be implemented in a full version
+            showToast('Review functionality would save to database in full version', 'info');
+        }
+
+        function submitReview(productId) {
+            const reviewText = document.getElementById('reviewText').value;
+            if (!reviewText.trim()) {
+                showToast('Please enter your review', 'warning');
+                return;
+            }
+            
+            // In a full version, this would save to the database
+            showToast('Review submitted successfully!', 'success');
+            document.getElementById('reviewText').value = '';
+        }
+
+        // ======================
+        // CART FUNCTIONS
+        // ======================
+        
+        function getCart() {
+            return JSON.parse(localStorage.getItem('cart')) || [];
+        }
+
+        function updateCartCount() {
+            const cart = getCart();
+            const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+
+        function addToCart(productId, quantity = 1) {
+            const products = getProducts();
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) {
+                showToast('Product not found', 'error');
+                return;
+            }
+            
+            if (product.stock <= 0) {
+                showToast('Product is out of stock', 'error');
+                return;
+            }
+            
+            let cart = getCart();
+            const existingItem = cart.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                // Check if we have enough stock
+                if (existingItem.quantity + quantity > product.stock) {
+                    showToast(`Only ${product.stock} items available in stock`, 'warning');
+                    return;
+                }
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image,
+                    quantity: quantity
+                });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast(`${product.name} added to cart`, 'success');
+        }
+
+        function loadCartPage() {
+            const cart = getCart();
+            const container = document.getElementById('cartItemsContainer');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <h3>Your cart is empty</h3>
+                            <p class="text-muted mb-4">Add some products to your cart to continue shopping.</p>
+                            <button class="btn btn-primary" onclick="showPage('products')">
+                                <i class="fas fa-shopping-bag me-2"></i> Start Shopping
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('cartSubtotal').textContent = '$0.00';
+                document.getElementById('cartTax').textContent = '$0.00';
+                document.getElementById('cartTotal').textContent = '$0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+            } else {
+                let html = `
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+                
+                let subtotal = 0;
+                
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded me-3">
+                                    <div>
+                                        <h6 class="mb-0">${item.name}</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${formatCurrency(item.price)}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-outline-secondary btn-sm quantity-btn" onclick="updateCartItemQuantity(${index}, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" class="form-control mx-2 text-center" value="${item.quantity}" min="1" style="width: 70px;" onchange="updateCartItemQuantityInput(${index}, this.value)">
+                                    <button class="btn btn-outline-secondary btn-sm quantity-btn" onclick="updateCartItemQuantity(${index}, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>${formatCurrency(itemTotal)}</td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <button class="btn btn-outline-primary" onclick="showPage('products')">
+                                    <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                                </button>
+                                <button class="btn btn-danger" onclick="clearCart()">
+                                    <i class="fas fa-trash me-2"></i> Clear Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+                
+                const tax = subtotal * 0.1;
+                const total = subtotal + tax;
+                
+                document.getElementById('cartSubtotal').textContent = formatCurrency(subtotal);
+                document.getElementById('cartTax').textContent = formatCurrency(tax);
+                document.getElementById('cartTotal').textContent = formatCurrency(total);
+                document.getElementById('checkoutBtn').disabled = false;
+            }
+            
+            updateCartCount();
+        }
+
+        function updateCartItemQuantity(index, change) {
+            let cart = getCart();
+            if (index < 0 || index >= cart.length) return;
+            
+            const products = getProducts();
+            const product = products.find(p => p.id === cart[index].productId);
+            
+            if (!product) return;
+            
+            const newQuantity = cart[index].quantity + change;
+            
+            if (newQuantity < 1) {
+                removeFromCart(index);
+                return;
+            }
+            
+            if (newQuantity > product.stock) {
+                showToast(`Only ${product.stock} items available in stock`, 'warning');
+                return;
+            }
+            
+            cart[index].quantity = newQuantity;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCartPage();
+        }
+
+        function updateCartItemQuantityInput(index, value) {
+            let cart = getCart();
+            if (index < 0 || index >= cart.length) return;
+            
+            const products = getProducts();
+            const product = products.find(p => p.id === cart[index].productId);
+            
+            if (!product) return;
+            
+            const newQuantity = parseInt(value) || 1;
+            
+            if (newQuantity < 1) {
+                removeFromCart(index);
+                return;
+            }
+            
+            if (newQuantity > product.stock) {
+                showToast(`Only ${product.stock} items available in stock`, 'warning');
+                cart[index].quantity = product.stock;
+            } else {
+                cart[index].quantity = newQuantity;
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCartPage();
+        }
+
+        function removeFromCart(index) {
+            let cart = getCart();
+            if (index < 0 || index >= cart.length) return;
+            
+            const itemName = cart[index].name;
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            showToast(`${itemName} removed from cart`, 'success');
+            loadCartPage();
+        }
+
+        function clearCart() {
+            localStorage.setItem('cart', JSON.stringify([]));
+            showToast('Cart cleared', 'success');
+            loadCartPage();
+        }
+
+        function buyNow(productId) {
+            addToCart(productId, parseInt(document.getElementById('productQuantity').value || 1));
+            showPage('cart');
+        }
+
+        // ======================
+        // CHECKOUT FUNCTIONS
+        // ======================
+        
+        function loadCheckoutPage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                showToast('Please login to checkout', 'warning');
+                showPage('login');
+                return;
+            }
+            
+            const cart = getCart();
+            
+            if (cart.length === 0) {
+                showToast('Your cart is empty', 'warning');
+                showPage('cart');
+                return;
+            }
+            
+            // Load checkout items
+            const checkoutItemsContainer = document.getElementById('checkoutItems');
+            let subtotal = 0;
+            
+            let itemsHtml = '';
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                itemsHtml += `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>${item.name} × ${item.quantity}</span>
+                        <span>${formatCurrency(itemTotal)}</span>
+                    </div>
+                `;
+            });
+            
+            checkoutItemsContainer.innerHTML = itemsHtml;
+            
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax;
+            
+            document.getElementById('checkoutSubtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('checkoutTax').textContent = formatCurrency(tax);
+            document.getElementById('checkoutTotal').textContent = formatCurrency(total);
+            
+            // Pre-fill user info if available
+            if (currentUser) {
+                document.getElementById('firstName').value = currentUser.firstName || '';
+                document.getElementById('lastName').value = currentUser.lastName || '';
+                document.getElementById('email').value = currentUser.email || '';
+            }
+        }
+
+        function placeOrder() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                showToast('Please login to place order', 'error');
+                showPage('login');
+                return;
+            }
+            
+            // Validate form
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const zip = document.getElementById('zip').value;
+            const phone = document.getElementById('phone').value;
+            const termsCheck = document.getElementById('termsCheck').checked;
+            
+            if (!firstName || !lastName || !email || !address || !city || !state || !zip || !phone) {
+                showToast('Please fill all required fields', 'warning');
+                return;
+            }
+            
+            if (!termsCheck) {
+                showToast('Please agree to the terms and conditions', 'warning');
+                return;
+            }
+            
+            const cart = getCart();
+            if (cart.length === 0) {
+                showToast('Your cart is empty', 'error');
+                return;
+            }
+            
+            // Calculate total
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+            
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax;
+            
+            // Create order
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const newOrderId = 1000 + orders.length + 1;
+            
+            const newOrder = {
+                id: newOrderId,
+                userId: currentUser.id,
+                date: new Date().toISOString().split('T')[0],
+                items: cart.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                total: total,
+                status: 'Processing',
+                shippingAddress: `${address}, ${city}, ${state} ${zip}`,
+                customerName: `${firstName} ${lastName}`,
+                customerEmail: email,
+                customerPhone: phone
+            };
+            
+            orders.push(newOrder);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Update user's order count and total spent
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].orders = (users[userIndex].orders || 0) + 1;
+                users[userIndex].totalSpent = (users[userIndex].totalSpent || 0) + total;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            // Update product stock
+            const products = getProducts();
+            cart.forEach(cartItem => {
+                const productIndex = products.findIndex(p => p.id === cartItem.productId);
+                if (productIndex !== -1) {
+                    products[productIndex].stock -= cartItem.quantity;
+                    if (products[productIndex].stock < 0) products[productIndex].stock = 0;
+                }
+            });
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Clear cart
+            localStorage.setItem('cart', JSON.stringify([]));
+            updateCartCount();
+            
+            // Show confirmation
+            document.getElementById('confirmedOrderId').textContent = `#${newOrderId}`;
+            document.getElementById('confirmedOrderTotal').textContent = formatCurrency(total);
+            showPage('orderConfirm');
+            
+            showToast('Order placed successfully!', 'success');
+        }
+
+        // ======================
+        // USER AUTH FUNCTIONS
+        // ======================
+        
+        function login(email, password) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // Don't store password in currentUser
+                const { password, ...userWithoutPassword } = user;
+                localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+                
+                // Update UI
+                updateUserMenu();
+                showToast('Login successful!', 'success');
+                
+                return userWithoutPassword;
+            }
+            
+            return null;
+        }
+
+        function register(userData) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            // Check if user already exists
+            if (users.find(u => u.email === userData.email)) {
+                return { success: false, message: 'Email already registered' };
+            }
+            
+            // Create new user
+            const newUser = {
+                id: users.length + 1,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                password: userData.password,
+                role: 'customer',
+                joined: new Date().toISOString().split('T')[0],
+                orders: 0,
+                totalSpent: 0
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Auto login
+            const { password, ...userWithoutPassword } = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+            updateUserMenu();
+            
+            return { success: true, user: userWithoutPassword };
+        }
+
+        function logout() {
+            localStorage.setItem('currentUser', JSON.stringify(null));
+            updateUserMenu();
+            showToast('Logged out successfully', 'success');
+            showPage('home');
+        }
+
+        function updateUserMenu() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userNameElement = document.getElementById('userName');
+            const loginMenuItem = document.getElementById('loginMenuItem');
+            const registerMenuItem = document.getElementById('registerMenuItem');
+            const profileMenuItem = document.getElementById('profileMenuItem');
+            const ordersMenuItem = document.getElementById('ordersMenuItem');
+            const adminMenuItem = document.getElementById('adminMenuItem');
+            const logoutMenuItem = document.getElementById('logoutMenuItem');
+            const profileDivider = document.getElementById('profileDivider');
+            
+            if (currentUser) {
+                userNameElement.textContent = currentUser.firstName || 'User';
+                
+                // Show user menu items
+                loginMenuItem.classList.add('d-none');
+                registerMenuItem.classList.add('d-none');
+                profileMenuItem.classList.remove('d-none');
+                ordersMenuItem.classList.remove('d-none');
+                profileDivider.classList.remove('d-none');
+                logoutMenuItem.classList.remove('d-none');
+                
+                // Show admin menu if user is admin
+                if (currentUser.role === 'admin') {
+                    adminMenuItem.classList.remove('d-none');
+                } else {
+                    adminMenuItem.classList.add('d-none');
+                }
+            } else {
+                userNameElement.textContent = 'Account';
+                
+                // Show login/register items
+                loginMenuItem.classList.remove('d-none');
+                registerMenuItem.classList.remove('d-none');
+                profileMenuItem.classList.add('d-none');
+                ordersMenuItem.classList.add('d-none');
+                adminMenuItem.classList.add('d-none');
+                profileDivider.classList.add('d-none');
+                logoutMenuItem.classList.add('d-none');
+            }
+        }
+
+        // ======================
+        // PROFILE FUNCTIONS
+        // ======================
+        
+        function loadProfilePage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                showToast('Please login to view profile', 'warning');
+                showPage('login');
+                return;
+            }
+            
+            document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Customer';
+            document.getElementById('memberSince').textContent = currentUser.joined || '2023';
+            document.getElementById('totalOrders').textContent = currentUser.orders || 0;
+            document.getElementById('totalSpent').textContent = formatCurrency(currentUser.totalSpent || 0);
+            
+            // Fill form
+            document.getElementById('profileFirstName').value = currentUser.firstName || '';
+            document.getElementById('profileLastName').value = currentUser.lastName || '';
+            document.getElementById('profileEmailInput').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            
+            // Load addresses
+            loadAddresses();
+        }
+
+        function loadAddresses() {
+            const addressesContainer = document.getElementById('savedAddresses');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || !currentUser.addresses || currentUser.addresses.length === 0) {
+                addressesContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No saved addresses. Add your first address below.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            currentUser.addresses.forEach((address, index) => {
+                html += `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">${address.name || 'Home'}</h6>
+                                    <p class="mb-1 small">${address.street}</p>
+                                    <p class="mb-1 small">${address.city}, ${address.state} ${address.zip}</p>
+                                    <p class="mb-0 small">${address.country}</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editAddress(${index})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAddress(${index})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            addressesContainer.innerHTML = html;
+        }
+
+        function addNewAddress() {
+            // In a full version, this would show a modal to add address
+            showToast('Address functionality would be implemented in full version', 'info');
+        }
+
+        function editAddress(index) {
+            showToast('Edit address functionality would be implemented in full version', 'info');
+        }
+
+        function deleteAddress(index) {
+            showToast('Delete address functionality would be implemented in full version', 'info');
+        }
+
+        // ======================
+        // ORDERS FUNCTIONS
+        // ======================
+        
+        function loadOrdersPage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                showToast('Please login to view orders', 'warning');
+                showPage('login');
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const userOrders = orders.filter(order => order.userId === currentUser.id);
+            const tableBody = document.getElementById('ordersTableBody');
+            const noOrdersMessage = document.getElementById('noOrdersMessage');
+            
+            if (userOrders.length === 0) {
+                tableBody.innerHTML = '';
+                noOrdersMessage.classList.remove('d-none');
+            } else {
+                noOrdersMessage.classList.add('d-none');
+                tableBody.innerHTML = '';
+                
+                userOrders.forEach(order => {
+                    const statusClass = {
+                        'Processing': 'warning',
+                        'Shipped': 'info',
+                        'Delivered': 'success',
+                        'Cancelled': 'danger'
+                    }[order.status] || 'secondary';
+                    
+                    const row = `
+                        <tr>
+                            <td>#${order.id}</td>
+                            <td>${order.date}</td>
+                            <td>${order.items.length} item(s)</td>
+                            <td>${formatCurrency(order.total)}</td>
+                            <td><span class="badge bg-${statusClass}">${order.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewOrderDetails(${order.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                showToast('Order not found', 'error');
+                return;
+            }
+            
+            // In a full version, this would show order details modal
+            alert(`Order #${order.id}\nDate: ${order.date}\nStatus: ${order.status}\nTotal: ${formatCurrency(order.total)}\n\nItems:\n${order.items.map(item => `- ${item.name} (x${item.quantity})`).join('\n')}`);
+        }
+
+        // ======================
+        // ADMIN FUNCTIONS
+        // ======================
+        
+        function loadAdminPage() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser || currentUser.role !== 'admin') {
+                showToast('Admin access required', 'error');
+                showPage('home');
+                return;
+            }
+            
+            // Load statistics
+            const products = getProducts();
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            document.getElementById('adminTotalProducts').textContent = products.length;
+            document.getElementById('adminTotalOrders').textContent = orders.length;
+            document.getElementById('adminTotalUsers').textContent = users.length;
+            
+            const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+            document.getElementById('adminRevenue').textContent = formatCurrency(revenue);
+            
+            // Load products table
+            loadAdminProductsTable();
+            loadAdminOrdersTable();
+            loadAdminUsersTable();
+        }
+
+        function loadAdminProductsTable() {
+            const products = getProducts();
+            const tableBody = document.getElementById('adminProductsTable');
+            
+            tableBody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td><img src="${product.image}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded"></td>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${formatCurrency(product.price)}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.rating}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function loadAdminOrdersTable() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const tableBody = document.getElementById('adminOrdersTable');
+            
+            tableBody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const statusClass = {
+                    'Processing': 'warning',
+                    'Shipped': 'info',
+                    'Delivered': 'success',
+                    'Cancelled': 'danger'
+                }[order.status] || 'secondary';
+                
+                const row = `
+                    <tr>
+                        <td>#${order.id}</td>
+                        <td>${order.customerName || 'Customer'}</td>
+                        <td>${order.date}</td>
+                        <td>${formatCurrency(order.total)}</td>
+                        <td><span class="badge bg-${statusClass}">${order.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="updateOrderStatus(${order.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function loadAdminUsersTable() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const tableBody = document.getElementById('adminUsersTable');
+            
+            tableBody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.firstName} ${user.lastName}</td>
+                        <td>${user.email}</td>
+                        <td><span class="badge ${user.role === 'admin' ? 'bg-danger' : 'bg-secondary'}">${user.role}</span></td>
+                        <td>${user.joined}</td>
+                        <td>${user.orders || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser(${user.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function showAddProductModal() {
+            // In a full version, this would show a modal
+            showToast('Add product functionality would be implemented in full version', 'info');
+        }
+
+        function editProduct(productId) {
+            showToast('Edit product functionality would be implemented in full version', 'info');
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                const products = getProducts();
+                const updatedProducts = products.filter(p => p.id !== productId);
+                localStorage.setItem('products', JSON.stringify(updatedProducts));
+                loadAdminProductsTable();
+                showToast('Product deleted', 'success');
+            }
+        }
+
+        function updateOrderStatus(orderId) {
+            showToast('Update order status functionality would be implemented in full version', 'info');
+        }
+
+        function editUser(userId) {
+            showToast('Edit user functionality would be implemented in full version', 'info');
+        }
+
+        // ======================
+        // FORM HANDLERS
+        // ======================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize storage
+            initializeStorage();
+            
+            // Update UI based on login status
+            updateUserMenu();
+            
+            // Load home page
+            loadHomePage();
+            
+            // Login form handler
+            document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                const user = login(email, password);
+                
+                if (user) {
+                    showPage('home');
+                } else {
+                    showToast('Invalid email or password', 'error');
+                }
+            });
+            
+            // Register form handler
+            document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const firstName = document.getElementById('regFirstName').value;
+                const lastName = document.getElementById('regLastName').value;
+                const email = document.getElementById('regEmail').value;
+                const password = document.getElementById('regPassword').value;
+                const confirmPassword = document.getElementById('regConfirmPassword').value;
+                
+                // Validation
+                if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                    showToast('Please fill all fields', 'warning');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showToast('Password must be at least 6 characters', 'warning');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showToast('Passwords do not match', 'warning');
+                    return;
+                }
+                
+                const result = register({
+                    firstName,
+                    lastName,
+                    email,
+                    password
+                });
+                
+                if (result.success) {
+                    showToast('Account created successfully!', 'success');
+                    showPage('home');
+                } else {
+                    showToast(result.message, 'error');
+                }
+            });
+            
+            // Profile form handler
+            document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Profile updated successfully!', 'success');
+            });
+            
+            // Password form handler
+            document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Password changed successfully!', 'success');
+            });
+        });
+    </script>
+</body>
+</html>
