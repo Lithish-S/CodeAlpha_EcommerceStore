@@ -636,7 +636,7 @@
                             <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
                         </div>
                         <div class="text-end mt-2">
-                            <a href="#" class="small" onclick="showPage('forgotPassword')">Forgot password?</a>
+                            <a href="#" class="small">Forgot password?</a>
                         </div>
                     </div>
                     
@@ -1045,8 +1045,8 @@
             </div>
         </div>
 
-        <!-- Order Confirmation Page -->
-        <div id="orderConfirmPage" class="d-none">
+        <!-- Order Confirmation Page - FIXED: Changed from orderConfirm to orderConfirmation -->
+        <div id="orderConfirmationPage" class="d-none">
             <div class="text-center py-5">
                 <div class="mb-4">
                     <i class="fas fa-check-circle fa-5x text-success"></i>
@@ -1622,7 +1622,10 @@
             }
             
             // Update category filter dropdown
-            document.getElementById('categoryFilter').value = category;
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                categoryFilter.value = category;
+            }
             showPage('products');
         }
 
@@ -2238,9 +2241,13 @@
             
             // Pre-fill user info if available
             if (currentUser) {
-                document.getElementById('firstName').value = currentUser.firstName || '';
-                document.getElementById('lastName').value = currentUser.lastName || '';
-                document.getElementById('email').value = currentUser.email || '';
+                const firstNameField = document.getElementById('firstName');
+                const lastNameField = document.getElementById('lastName');
+                const emailField = document.getElementById('email');
+                
+                if (firstNameField) firstNameField.value = currentUser.firstName || '';
+                if (lastNameField) lastNameField.value = currentUser.lastName || '';
+                if (emailField) emailField.value = currentUser.email || '';
             }
         }
 
@@ -2254,15 +2261,15 @@
             }
             
             // Validate form
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const address = document.getElementById('address').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const zip = document.getElementById('zip').value;
-            const phone = document.getElementById('phone').value;
-            const termsCheck = document.getElementById('termsCheck').checked;
+            const firstName = document.getElementById('firstName')?.value;
+            const lastName = document.getElementById('lastName')?.value;
+            const email = document.getElementById('email')?.value;
+            const address = document.getElementById('address')?.value;
+            const city = document.getElementById('city')?.value;
+            const state = document.getElementById('state')?.value;
+            const zip = document.getElementById('zip')?.value;
+            const phone = document.getElementById('phone')?.value;
+            const termsCheck = document.getElementById('termsCheck')?.checked;
             
             if (!firstName || !lastName || !email || !address || !city || !state || !zip || !phone) {
                 showToast('Please fill all required fields', 'warning');
@@ -2338,10 +2345,10 @@
             localStorage.setItem('cart', JSON.stringify([]));
             updateCartCount();
             
-            // Show confirmation
+            // Show confirmation - FIXED: Using orderConfirmationPage instead of orderConfirmPage
             document.getElementById('confirmedOrderId').textContent = `#${newOrderId}`;
             document.getElementById('confirmedOrderTotal').textContent = formatCurrency(total);
-            showPage('orderConfirm');
+            showPage('orderConfirmation');
             
             showToast('Order placed successfully!', 'success');
         }
@@ -2423,30 +2430,32 @@
                 userNameElement.textContent = currentUser.firstName || 'User';
                 
                 // Show user menu items
-                loginMenuItem.classList.add('d-none');
-                registerMenuItem.classList.add('d-none');
-                profileMenuItem.classList.remove('d-none');
-                ordersMenuItem.classList.remove('d-none');
-                profileDivider.classList.remove('d-none');
-                logoutMenuItem.classList.remove('d-none');
+                if (loginMenuItem) loginMenuItem.classList.add('d-none');
+                if (registerMenuItem) registerMenuItem.classList.add('d-none');
+                if (profileMenuItem) profileMenuItem.classList.remove('d-none');
+                if (ordersMenuItem) ordersMenuItem.classList.remove('d-none');
+                if (profileDivider) profileDivider.classList.remove('d-none');
+                if (logoutMenuItem) logoutMenuItem.classList.remove('d-none');
                 
                 // Show admin menu if user is admin
-                if (currentUser.role === 'admin') {
-                    adminMenuItem.classList.remove('d-none');
-                } else {
-                    adminMenuItem.classList.add('d-none');
+                if (adminMenuItem) {
+                    if (currentUser.role === 'admin') {
+                        adminMenuItem.classList.remove('d-none');
+                    } else {
+                        adminMenuItem.classList.add('d-none');
+                    }
                 }
             } else {
                 userNameElement.textContent = 'Account';
                 
                 // Show login/register items
-                loginMenuItem.classList.remove('d-none');
-                registerMenuItem.classList.remove('d-none');
-                profileMenuItem.classList.add('d-none');
-                ordersMenuItem.classList.add('d-none');
-                adminMenuItem.classList.add('d-none');
-                profileDivider.classList.add('d-none');
-                logoutMenuItem.classList.add('d-none');
+                if (loginMenuItem) loginMenuItem.classList.remove('d-none');
+                if (registerMenuItem) registerMenuItem.classList.remove('d-none');
+                if (profileMenuItem) profileMenuItem.classList.add('d-none');
+                if (ordersMenuItem) ordersMenuItem.classList.add('d-none');
+                if (adminMenuItem) adminMenuItem.classList.add('d-none');
+                if (profileDivider) profileDivider.classList.add('d-none');
+                if (logoutMenuItem) logoutMenuItem.classList.add('d-none');
             }
         }
 
@@ -2463,18 +2472,29 @@
                 return;
             }
             
-            document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
-            document.getElementById('profileEmail').textContent = currentUser.email;
-            document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Customer';
-            document.getElementById('memberSince').textContent = currentUser.joined || '2023';
-            document.getElementById('totalOrders').textContent = currentUser.orders || 0;
-            document.getElementById('totalSpent').textContent = formatCurrency(currentUser.totalSpent || 0);
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileRole = document.getElementById('profileRole');
+            const memberSince = document.getElementById('memberSince');
+            const totalOrders = document.getElementById('totalOrders');
+            const totalSpent = document.getElementById('totalSpent');
+            const profileFirstName = document.getElementById('profileFirstName');
+            const profileLastName = document.getElementById('profileLastName');
+            const profileEmailInput = document.getElementById('profileEmailInput');
+            const profilePhone = document.getElementById('profilePhone');
+            
+            if (profileName) profileName.textContent = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`;
+            if (profileEmail) profileEmail.textContent = currentUser.email || '';
+            if (profileRole) profileRole.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Customer';
+            if (memberSince) memberSince.textContent = currentUser.joined || '2023';
+            if (totalOrders) totalOrders.textContent = currentUser.orders || 0;
+            if (totalSpent) totalSpent.textContent = formatCurrency(currentUser.totalSpent || 0);
             
             // Fill form
-            document.getElementById('profileFirstName').value = currentUser.firstName || '';
-            document.getElementById('profileLastName').value = currentUser.lastName || '';
-            document.getElementById('profileEmailInput').value = currentUser.email || '';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
+            if (profileFirstName) profileFirstName.value = currentUser.firstName || '';
+            if (profileLastName) profileLastName.value = currentUser.lastName || '';
+            if (profileEmailInput) profileEmailInput.value = currentUser.email || '';
+            if (profilePhone) profilePhone.value = currentUser.phone || '';
             
             // Load addresses
             loadAddresses();
@@ -2483,6 +2503,8 @@
         function loadAddresses() {
             const addressesContainer = document.getElementById('savedAddresses');
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!addressesContainer) return;
             
             if (!currentUser || !currentUser.addresses || currentUser.addresses.length === 0) {
                 addressesContainer.innerHTML = `
@@ -2554,6 +2576,8 @@
             const tableBody = document.getElementById('ordersTableBody');
             const noOrdersMessage = document.getElementById('noOrdersMessage');
             
+            if (!tableBody || !noOrdersMessage) return;
+            
             if (userOrders.length === 0) {
                 tableBody.innerHTML = '';
                 noOrdersMessage.classList.remove('d-none');
@@ -2619,14 +2643,19 @@
             const orders = JSON.parse(localStorage.getItem('orders')) || [];
             const users = JSON.parse(localStorage.getItem('users')) || [];
             
-            document.getElementById('adminTotalProducts').textContent = products.length;
-            document.getElementById('adminTotalOrders').textContent = orders.length;
-            document.getElementById('adminTotalUsers').textContent = users.length;
+            const adminTotalProducts = document.getElementById('adminTotalProducts');
+            const adminTotalOrders = document.getElementById('adminTotalOrders');
+            const adminTotalUsers = document.getElementById('adminTotalUsers');
+            const adminRevenue = document.getElementById('adminRevenue');
+            
+            if (adminTotalProducts) adminTotalProducts.textContent = products.length;
+            if (adminTotalOrders) adminTotalOrders.textContent = orders.length;
+            if (adminTotalUsers) adminTotalUsers.textContent = users.length;
             
             const revenue = orders.reduce((sum, order) => sum + order.total, 0);
-            document.getElementById('adminRevenue').textContent = formatCurrency(revenue);
+            if (adminRevenue) adminRevenue.textContent = formatCurrency(revenue);
             
-            // Load products table
+            // Load tables
             loadAdminProductsTable();
             loadAdminOrdersTable();
             loadAdminUsersTable();
@@ -2635,6 +2664,8 @@
         function loadAdminProductsTable() {
             const products = getProducts();
             const tableBody = document.getElementById('adminProductsTable');
+            
+            if (!tableBody) return;
             
             tableBody.innerHTML = '';
             
@@ -2665,6 +2696,8 @@
         function loadAdminOrdersTable() {
             const orders = JSON.parse(localStorage.getItem('orders')) || [];
             const tableBody = document.getElementById('adminOrdersTable');
+            
+            if (!tableBody) return;
             
             tableBody.innerHTML = '';
             
@@ -2697,6 +2730,8 @@
         function loadAdminUsersTable() {
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const tableBody = document.getElementById('adminUsersTable');
+            
+            if (!tableBody) return;
             
             tableBody.innerHTML = '';
             
@@ -2762,73 +2797,85 @@
             loadHomePage();
             
             // Login form handler
-            document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                const user = login(email, password);
-                
-                if (user) {
-                    showPage('home');
-                } else {
-                    showToast('Invalid email or password', 'error');
-                }
-            });
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    const user = login(email, password);
+                    
+                    if (user) {
+                        showPage('home');
+                    } else {
+                        showToast('Invalid email or password', 'error');
+                    }
+                });
+            }
             
             // Register form handler
-            document.getElementById('registerForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const firstName = document.getElementById('regFirstName').value;
-                const lastName = document.getElementById('regLastName').value;
-                const email = document.getElementById('regEmail').value;
-                const password = document.getElementById('regPassword').value;
-                const confirmPassword = document.getElementById('regConfirmPassword').value;
-                
-                // Validation
-                if (!firstName || !lastName || !email || !password || !confirmPassword) {
-                    showToast('Please fill all fields', 'warning');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showToast('Password must be at least 6 characters', 'warning');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    showToast('Passwords do not match', 'warning');
-                    return;
-                }
-                
-                const result = register({
-                    firstName,
-                    lastName,
-                    email,
-                    password
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const firstName = document.getElementById('regFirstName').value;
+                    const lastName = document.getElementById('regLastName').value;
+                    const email = document.getElementById('regEmail').value;
+                    const password = document.getElementById('regPassword').value;
+                    const confirmPassword = document.getElementById('regConfirmPassword').value;
+                    
+                    // Validation
+                    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                        showToast('Please fill all fields', 'warning');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        showToast('Password must be at least 6 characters', 'warning');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showToast('Passwords do not match', 'warning');
+                        return;
+                    }
+                    
+                    const result = register({
+                        firstName,
+                        lastName,
+                        email,
+                        password
+                    });
+                    
+                    if (result.success) {
+                        showToast('Account created successfully!', 'success');
+                        showPage('home');
+                    } else {
+                        showToast(result.message, 'error');
+                    }
                 });
-                
-                if (result.success) {
-                    showToast('Account created successfully!', 'success');
-                    showPage('home');
-                } else {
-                    showToast(result.message, 'error');
-                }
-            });
+            }
             
             // Profile form handler
-            document.getElementById('profileForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                showToast('Profile updated successfully!', 'success');
-            });
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showToast('Profile updated successfully!', 'success');
+                });
+            }
             
             // Password form handler
-            document.getElementById('passwordForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                showToast('Password changed successfully!', 'success');
-            });
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showToast('Password changed successfully!', 'success');
+                });
+            }
         });
     </script>
 </body>
